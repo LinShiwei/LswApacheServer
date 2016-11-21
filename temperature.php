@@ -29,17 +29,17 @@
                     $result = mysqli_query($link,"SELECT * FROM `Temperature`");
                     $row = mysqli_fetch_array($result);
                     
-                    $data = array('status' => true, 'date' => $row["Date"], 'value' => intval($row["Value"]));
+                    $data = array('status' => true, 'date' => $row["Date"], 'value' => (double)$row["Value"]);
                     $jsonstring = json_encode($data);
                     header('Content-Type: application/json');
                     echo $jsonstring;
                     break;
                 case "set":
                     $value = $_GET["value"];
-                    $valueInt = intval($value);
-                    if($valueInt){
+                    $valueDouble = (double)$value;
+                    if($valueDouble){
                         mysqli_query($link,"DELETE FROM `Temperature` WHERE 1");
-                        mysqli_query($link,"INSERT INTO `Temperature`(`Date`, `Value`) VALUES (CURRENT_TIMESTAMP,$valueInt);");
+                        mysqli_query($link,"INSERT INTO `Temperature`(`Date`, `Value`) VALUES (CURRENT_TIMESTAMP,$valueDouble);");
                         $data = array('status' => true, 'message' => 'setting success');
                         $jsonstring = json_encode($data);
                         header('Content-Type: application/json');

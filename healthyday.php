@@ -28,7 +28,7 @@
                 case "get":
                     $result = mysqli_query($link,"SELECT * FROM `SelfRunningData`");
                     while($row=mysqli_fetch_array($result)){
-                        $dataArray[] = array('date'=> $row["Date"], 'distance'=> $row["Distance"], 'duration'=> $row["Duration"], 'durationPerKilometer'=> $row["DurationPerKilometer"]);
+                        $dataArray[] = array('date'=> $row["Date"], 'distance'=> (double)$row["Distance"], 'duration'=> (int)$row["Duration"], 'durationPerKilometer'=> (int)$row["DurationPerKilometer"]);
                     }
                     $data = array('status' => true, 'runningdata' => $dataArray);
                     $jsonstring = json_encode($data);
@@ -36,22 +36,21 @@
                     echo $jsonstring;
                     break;
                 case "set":
+                    $dateString = str_replace("_"," ",$_GET["date"]);
                     $distance = doubleval($_GET["distance"]);
                     $duration = intval($_GET["duration"]);
                     $durationPerKilometer = intval($_GET["durationperkilometer"]);
-                    if($distance && $duration && $durationPerKilometer){
-                        mysqli_query($link,"INSERT INTO `SelfRunningData` (`Date`, `Distance`, `Duration`, `DurationPerKilometer`) VALUES (CURRENT_TIMESTAMP, $distance, $duration, $durationPerKilometer);");
+                    if($dateString && $distance && $duration && $durationPerKilometer){
+                        mysqli_query($link,"INSERT INTO `SelfRunningData` (`Date`, `Distance`, `Duration`, `DurationPerKilometer`) VALUES (TIMESTAMP '$dateString', $distance, $duration, $durationPerKilometer);");
                         echoJSON(true,"setting success");
                     }else{
                         echoJSON(false,"invalid value");
                     }
                     break;
                 case "delete":
-                    $dateOrigin = $_GET["date"];
-                    $date = str_replace("_"," ",$dateOrigin);
-                    //`Date` = '2016-11-01 00:00:00'
-                    if($date){
-                        mysqli_query($link,"DELETE FROM `SelfRunningData` WHERE `Date` = '$date'");
+                    $dateString = str_replace("_"," ",$_GET["date"]);
+                    if($dateString){
+                        mysqli_query($link,"DELETE FROM `SelfRunningData` WHERE `Date` = '$dateString'");
                         echoJSON(true,"delete success");
                     }else{
                         echoJSON(false,"invalid value");
